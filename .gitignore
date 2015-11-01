@@ -30,3 +30,8 @@ dist/
 # Grunt usually preprocesses files such as coffeescript, compass... inside the .tmp directory
 .tmp/
 
+# VAGRANT CORE OS
+.vagrant/
+log/
+user-data
+config.rb
