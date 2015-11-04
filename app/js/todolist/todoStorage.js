@@ -3,35 +3,26 @@
 
   angular
     .module('todomvc')
-    .factory('todoStorage', todoStorage);
+    .factory('TodoStorage', TodoStorage);
 
-    function todoStorage() {
+    function TodoStorage() {
       var vm = this;
       var STORAGE_ID = 'todos-angularjs-perf';
-
-
-      function getTodos(){
+      
+      var get = function(){
         return JSON.parse(localStorage.getItem(STORAGE_ID) || '[]');
-      }
-
-      function putTodos(todos) {
-          localStorage.setItem(STORAGE_ID, JSON.stringify(todos));
-      }
-
-      return {
-        getTodos : getTodos,
-        putTodos : putTodos
       };
-      /*
-      return {
-        get: function () {
-          return JSON.parse(localStorage.getItem(STORAGE_ID) || '[]');
-        },
 
-        put: function (todos) {
-          localStorage.setItem(STORAGE_ID, JSON.stringify(todos));
-        }
-      }
-      */
+      var put = function(todos) {
+        console.log("in TodoStorage::put");
+        localStorage.setItem(STORAGE_ID, JSON.stringify(todos));
+      };
+      
+      
+      return {
+        get: get,
+        put: put
+      };
+      
     }
 })();

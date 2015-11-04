@@ -5,31 +5,46 @@
     .module('todomvc')
     .controller('TodoController', TodoController);
 
-      TodoController.$inject = ['$location', '$filter', 'todoStorage'];
+      TodoController.$inject = ['$scope', '$location', '$filter', 'TodoStorage'];
 
-      function TodoController($location, $filter, todoStorage) {
+      function TodoController($scope, $location, $filter, TodoStorage) {
       
         var vm = this;
-        var todos = vm.todos = todoStorage.getTodos();
+        var todos = vm.todos = TodoStorage.get();
+        var newTodo = vm.newTodo = '';
+        var remainingCount = vm.remainingCount = $filter('filter')(vm.todos, {completed: false}).length;
+        var editedTodo = vm.editedTodo = null;
 
-        if($location.path() === '') {
-          $location.path('/');
-        }
+        vm.addTodo = addTodo;
+        vm.editTodo = editTodo;
+        vm.doneEditing = doneEditing;
+        vm.revertEditing = revertEditing;
+        vm.removeTodo = removeTodo;
+        vm.todoCompleted = todoCompleted;
+        vm.clearCompletedTodos = clearCompletedTodos;
+        vm.markAll = markAll;
 
-        vm.location = $location;
+        init();
 
-        $scope.$watch('location.path()', function(path) {
-          vm.statusFilter = {'/active': {completed: false}, '/completed': {completed: true}}[path];
-        });
+        function init() {
+          $scope.$watch('location.path()', function(path) {
+            vm.statusFilter = {'/active': {completed: false}, '/completed': {completed: true}}[path];
+          });
 
-        $scope.$watch('remainingCount === 0', function(val){
-          vm.allChecked = val;
-        });
+          $scope.$watch('remainingCount === 0', function(val){
+            vm.allChecked = val;
+          });  
 
+          if($location.path() === '') {
+            $location.path('/');
+          }
+
+          vm.location = $location;
+        } 
 
         function addTodo() {
           var newTodo = vm.newTodo.trim();
-          
+
           if(newTodo.length === 0) {
             return;
           }
@@ -39,7 +54,7 @@
             completed: false
           });
 
-          todoStorage.putTodos(todos);
+          TodoStorage.put(todos);
 
           vm.newTodo = '';
           vm.remainingCount++;
@@ -57,7 +72,7 @@
           if(!todo.title) {
             vm.removeTodo(todo);
           }
-          todoStorage.putTodos(todos);
+          TodoStorage.put(todos);
         }
 
         function revertEditing(todo) {
@@ -68,19 +83,19 @@
         function removeTodo(todo) {
           vm.remainingCount -= todo.completed ? 0 : 1;
           todos.splice(todos.indexOf(todo), 1);
-          todoStorage.putTodos(todos);
+          TodoStorage.put(todos);
         }
 
         function todoCompleted(todo){
           vm.remainingCount +=todo.completed ? -1 : 1;
-          todoStorage.putTodos(todos);
+          TodoStorage.put(todos);
         }
 
         function clearCompletedTodos(){
           vm.todos = todos = todos.filter(function (val) {
             return !val.completed;
           });
-          todoStorage.putTodos(todos);
+          TodoStorage.put(todos);
         }
 
         function markAll(completed) {
@@ -88,7 +103,7 @@
             todo.completed = !completed;
           });
           vm.remainingCount = completed ? todos.length : 0;
-          todoStorage.putTodos(todos);
+          TodoStorage.put(todos);
         }
       }
 })();
